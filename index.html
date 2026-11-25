@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة الشكايات النقابية | الكونفدرالية الديمقراطية للشغل - فرع مراكش</title>
+    <!-- استدعاء خط Cairo من Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- استدعاء مكتبة Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        cdt: {
+                            yellow: '#FACC15',
+                            gold: '#EAB308',
+                            darkYellow: '#CA8A04',
+                            lightYellow: '#FEF9C3',
+                            black: '#0F172A',
+                            charcoal: '#1E293B',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* تنسيقات الطباعة لوصل الإيداع */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printable-receipt, #printable-receipt * {
+                visibility: visible;
+            }
+            #printable-receipt {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white !important;
+                color: black !important;
+                padding: 20px;
+                box-shadow: none !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+        /* تخصيص شريط التمرير */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #eab308;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ca8a04;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans min-h-screen flex flex-col selection:bg-yellow-400 selection:text-slate-950">
+
+    <!-- شريط تنبيهات عائم (Toast Notification) -->
+    <div id="toast-container" class="fixed bottom-5 left-5 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <!-- الشريط العلوي الرسمي -->
+    <div class="bg-slate-950 text-yellow-400 text-xs sm:text-sm py-2 px-4 border-b border-yellow-500/30">
+        <div class="max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-2">
+            <div class="flex items-center gap-2 font-semibold">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-yellow-400 animate-pulse"></span>
+                <span>البوابة الرقمية الرسمية لاستقبال وتتبع الشكايات النقابية</span>
+            </div>
+            <div class="text-slate-300 flex items-center gap-3">
+                <span>مراكش - المغرب</span>
+                <span class="text-yellow-500">|</span>
+                <span id="current-date" class="font-medium text-yellow-300"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- الترويسة الرئيسية (Header) -->
+    <header class="bg-gradient-to-l from-yellow-400 via-yellow-400 to-amber-400 text-slate-950 shadow-lg border-b-4 border-slate-900">
+        <div class="max-w-6xl mx-auto px-4 py-6 sm:py-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <!-- الشعار والعناوين الرسمية -->
+                <div class="flex flex-col sm:flex-row items-center text-center sm:text-right gap-5">
+                    <!-- شعار رمزي نقابي SVG -->
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 bg-slate-950 rounded-2xl p-3 flex flex-col items-center justify-center shadow-xl border-2 border-white/80 shrink-0 transform hover:scale-105 transition-transform">
+                        <svg viewBox="0 0 64 64" class="w-12 h-12 text-yellow-400" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <circle cx="32" cy="32" r="28" stroke="#FACC15" stroke-width="3"/>
+                            <path d="M20 40 L32 18 L44 40 Z" fill="#FACC15" fill-opacity="0.2" stroke="#FACC15" stroke-linejoin="round"/>
+                            <path d="M16 44 H48" stroke="#FACC15" stroke-width="3" stroke-linecap="round"/>
+                            <circle cx="32" cy="31" r="4" fill="#FACC15"/>
+                        </svg>
+                        <span class="text-yellow-400 font-black text-xs tracking-wider mt-1">CDT</span>
+                    </div>
+
+                    <div>
+                        <div class="inline-block bg-slate-950 text-yellow-400 text-xs font-bold px-3 py-1 rounded-full mb-2 shadow-sm">
+                            النقابة الوطنية لمستخدمي مؤسسات التمويل الأصغر
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-950 tracking-tight leading-tight">
+                            الكونفدرالية الديمقراطية للشغل
+                        </h1>
+                        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 mt-1">
+                            قطاع الأمانة للتمويل الأصغر
+                        </h2>
+                        <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-2">
+                            <span class="bg-white/90 text-slate-950 font-bold text-sm px-3.5 py-1 rounded-lg border border-slate-900/20 shadow-sm flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                                فرع مراكش - المكتب المحلي
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- بطاقة إحصائية سريعة وزر السجل -->
+                <div class="flex flex-col items-center md:items-end gap-3 w-full md:w-auto">
+                    <div class="bg-slate-950 text-white rounded-2xl p-4 shadow-lg border border-slate-800 w-full sm:w-auto flex items-center justify-between md:justify-end gap-5">
+                        <div class="text-right">
+                            <p class="text-xs text-slate-400">إجمالي الشكايات المسجلة</p>
+                            <p id="header-total-count" class="text-2xl font-black text-yellow-400">0</p>
+                        </div>
+                        <div class="h-10 w-px bg-slate-800"></div>
+                        <button onclick="switchMainTab('history')" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold text-sm px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                            <span>تتبع السجل</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8">
+
+        <!-- شريط التنقل الرئيسي بين الأقسام (Tabs) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 bg-white p-2 rounded-2xl shadow-md border border-slate-200">
+            <button id="tab-btn-individual" onclick="switchMainTab('individual')" class="tab-btn active-tab flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl font-bold text-base transition-all duration-200 bg-yellow-400 text-slate-950 shadow-sm border-2 border-slate-900">
+                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                <span>إيداع شكاية فردية</span>
+            </button>
+
+            <button id="tab-btn-collective" onclick="switchMainTab('collective')" class="tab-btn flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl font-bold text-base transition-all duration-200 bg-slate-100 text-slate-700 hover:bg-yellow-100 border-2 border-transparent">
+                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                <span>إيداع شكاية جماعية</span>
+            </button>
+
+            <button id="tab-btn-history" onclick="switchMainTab('history')" class="tab-btn flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl font-bold text-base transition-all duration-200 bg-slate-100 text-slate-700 hover:bg-yellow-100 border-2 border-transparent">
+                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <span>سجل وتتبع الشكايات</span>
+                <span id="tab-badge-count" class="bg-slate-900 text-yellow-400 text-xs font-extrabold px-2 py-0.5 rounded-full">0</span>
+            </button>
+        </div>
+
+        <!-- القسم 1: نموذج الشكاية الفردية -->
+        <section id="section-individual" class="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="bg-slate-900 text-white px-6 py-5 border-b-4 border-yellow-400 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-yellow-400 text-slate-950 flex items-center justify-center font-black">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-extrabold text-yellow-400">نموذج الشكاية الفردية</h3>
+                        <p class="text-xs sm:text-sm text-slate-300">خاص بالمستخدمين والأطر التابعين لقطاع الأمانة للتمويل الأصغر - فرع مراكش</p>
+                    </div>
+                </div>
+                <span class="bg-yellow-400/15 text-yellow-300 border border-yellow-400/30 text-xs font-bold px-3 py-1.5 rounded-lg">
+                    سرية تامة ومضمونة نقابيًا
+                </span>
+            </div>
+
+            <form id="form-individual" class="p-6 sm:p-8 space-y-6" novalidate>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- الاسم الكامل -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 mb-2">الاسم الكامل للمشتكي(ة) <span class="text-red-600">*</span></label>
+                        <input type="text" id="ind-name" required placeholder="أدخل الاسم الشخصي والعائلي" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-yellow-500 focus:ring-4 focus:ring-yellow-400/20 outline-none transition bg-slate-50 focus:bg-white">
+                    </div>
+
+                    <!-- رقم البطاقة الوطنية أو الرقم المهني -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 mb-2">الرقم المهني أو رقم البطاقة الوطنية (CIN) <span class="text-slate-400 font-normal text-xs">(اختياري)</span></label>
+                        <input type="text" id="ind-id" placeholder="مثال: EE123456 أو الرقم المهني" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-yellow-500 focus:ring-4 focus:ring-yellow-400/20 outline-none transition bg-slate-50 focus:bg-white">
+                    </div>
+
+                    <!-- الوكالة / المصلحة بمراكش -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 mb-2">الوكالة أو المصلحة بفرع مراكش <span class="text-red-600">*</span></label>
+                        <input type="text" id="ind-agency" required placeholder="مثال: وكالة جليز، وكالة المسيرة، المديرية الجهوية..." class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-yellow-500 focus:ring-4 focus:ring-yellow-400/20 outline-none transition bg-slate-50 focus:bg-white">
+                    </div>
+
+                    <!-- رقم الهاتف -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 mb-2">رقم الهاتف للتواصل <span class="text-red-600">*</span></label>
+                        <input type="tel" id="ind-phone" required placeholder="06XXXXXXXX" dir="ltr" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-yellow-500 focus:ring-4 focus:ring-yellow-400/20 outline-none transition bg-slate-50 focus:bg-white text-right">
+                    </div>
+
+                    <!-- البريد الإلكتروني -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 mb-2">البريد الإلكتروني <span class="text-slate-400 font-normal text-xs">(اختياري)</span></label>
+                        <input type="email" id="ind-email" placeholder="example@domain.com" dir="ltr" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-yellow-500 focus:ring-4 focus:ring-yellow-400/20 outline-none transition bg-slate-50 focus:bg-white text-right">
+                    </div>
+
+                    <!-- درجة الاستعجال -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 mb-2">درجة الاستعجال <span class="text-red-600">*</span></label>
+                        <select id="ind-urgency" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-yellow-500 focus:ring-4 focus:ring-yellow-400/20 outline-none transition bg-slate-50 focus:bg-white font-semibold">
+                            <option value="عادية">عادية - متابعة روتينية</option>
+                            <option value="متوسطة">متوسطة - تتطلب تدخلًا قريبًا</option>
+                            <option value="مستعجلة">مستعجلة جدًا - تدخل فوري للمكتب المحلي</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- موضوع الشكاية -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-800 mb-2">موضوع الشكاية الفردية <span class="text-red-600">*</span></label>
+                    <input type="text" id="ind-subject" required placeholder="اكتب عنوانًا موجزًا وواضحًا لموضوع الشكاية" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-yellow-500 focus:ring-4 focus:ring-yellow-400/20 outline-none transition bg-slate-50 focus:bg-white">
+                </div>
+
+                <!-- نص وتفاصيل الشكاية -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-800 mb-2">نص وتفاصيل الشكاية <span class="text-red-600">*</span></label>
+                    <textarea id="ind-details" rows="5" required placeholder="اشرح وقائع وحيثيات الشكاية بالتفصيل مع ذكر التواريخ والظروف المرتبطة بها..." class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-yellow-500 focus:ring-4 focus:ring-yellow-400/20 outline-none transition bg-slate-50 focus:bg-white"></textarea>
+                </div>
+
+                <!-- منطقة رفع الملفات للشكاية الفردية -->
+                <div class="bg-yellow-50/70 border-2 border-dashed border-yellow-400 rounded-2xl p-5">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <label class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                            <span>إرفاق الوثائق والحجج الداعمة للشكاية (اختياري)</span>
+                        </label>
+                        <span class="text-xs font-bold bg-slate-900 text-yellow-400 px-2.5 py-1 rounded-md">
+                            الصيغ المقبولة: PDF, JPG, PNG
+                        </span>
+                    </div>
+
+                    <div id="ind-dropzone" class="bg-white hover:bg-yellow-50/50 border border-yellow-300 rounded-xl p-6 text-center cursor-pointer transition-all">
+                        <input type="file" id="ind-file-input" multiple accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" class="hidden">
+                        <div class="w-12 h-12 bg-yellow-400/20 text-amber-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                        </div>
+                        <p class="text-sm font-bold text-slate-800">اسحب الملفات وأفلتها هنا، أو <span class="text-amber-600 underline">انقر لاختيار الملفات من جهازك</span></p>
+                        <p class="text-xs text-slate-500 mt-1">يمكنك إرفاق عدة وثائق (الحد الأقصى 5 ميغابايت لكل ملف - PDF, JPG, PNG)</p>
+                    </div>
+
+                    <!-- قائمة معاينة الملفات المرفقة -->
+                    <div id="ind-file-list" class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+                </div>
+
+                <!-- زر الإرسال -->
+                <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200">
+                    <p class="text-xs text-slate-500">
+                        بإرسالك لهذه الشكاية، فإنك تفوض المكتب المحلي للكونفدرالية الديمقراطية للشغل بمراكش لدراستها ومتابعتها.
+                    </p>
+                    <button type="submit" class="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black text-base px-8 py-3.5 rounded-xl shadow-lg hover:shadow-xl transition flex items-center justify-center gap-2 border-2 border-slate-900">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                        <span>إرسال الشكاية الفردية واستخراج الوصل</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- القسم 2: نموذج الشكاية الجماعية -->
+        <section id="section-collective" class="hidden bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="bg-slate-900 text-white px-6 py-5 border-b-4 border-yellow-400 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-yellow-400 text-slate-950 flex items-center justify-center font-black">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-extrabold text-yellow-400">نموذج الشكاية الجماعية / الملف المطلبي المشترك</h3>
+                        <p class="text-xs sm:text-sm text-slate-300">خاص بالوكالات، المصالح، أو مجموعات المستخدمين بفرع مراكش</p>
+                    </div>
+                </div>
+                <span class="bg-yellow-400 text-slate-950 text-xs font-extrabold px-3 py-1.5 rounded-lg">
+                    عمل نقابي وحدوي
+                </span>
+            </div>
+
+            <form id="form-collective" class="p-6 sm:p-8 space-y-6" novalidate>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- اسم الوكالة / القسم / المجموعة المعنية -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 mb-2">اسم الوكالة / القسم / المجموعة المعنية <span class="text-red-600">*</span></label>
+                        <input type="text" id="col-group" required placeholder="مثال: مستخدمو وكالات مراكش المدينة، مصلحة التحصيل..." class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-yellow-500 focus:ring-4 focus:ring-yellow-400/20 outline-none transition bg-slate-50 focus:bg-white">
+                    </div>
+
+                    <!-- اسم المنسق أو ممثل المجموعة -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 mb-2">اسم المنسق أو ممثل المجموعة <span class="text-red-600">*</span></label>
+                        <input type="text" id="col-coordinator" required placeholder="الاسم الكامل للمنسق المكلف بالتواصل" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-yellow-500 focus:ring-4 focus:ring-yellow-400/20 outline-none transition bg-slate-50 focus:bg-white">
+                    </div>
+
+                    <!-- رقم الهاتف للتواصل -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 mb-2">رقم هاتف المنسق للتواصل <span class="text-red-600">*</span></label>
+                        <input type="tel" id="col-phone" required placeholder="06XXXXXXXX" dir="ltr" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-yellow-500 focus:ring-4 focus:ring-yellow-400/20 outline-none transition bg-slate-50 focus:bg-white text-right">
+                    </div>
+
+                    <!-- عدد الموقعين / المتضررين -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 mb-2">عدد الموقعين / المتضررين التقريبي <span class="text-red-600">*</span></label>
+                        <input type="number" id="col-count" min="2" required placeholder="مثال: 12" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-yellow-500 focus:ring-4 focus:ring-yellow-400/20 outline-none transition bg-slate-50 focus:bg-white">
+                    </div>
+                </div>
+
+                <!-- موضوع الشكاية الجماعية -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-800 mb-2">موضوع الشكاية الجماعية <span class="text-red-600">*</span></label>
+                    <input type="text" id="col-subject" required placeholder="عنوان المشكل الجماعي أو الملف المطلبي المشترك" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-yellow-500 focus:ring-4 focus:ring-yellow-400/20 outline-none transition bg-slate-50 focus:bg-white">
+                </div>
+
+                <!-- تفاصيل المطالب والشكاية الجماعية -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-800 mb-2">تفاصيل المطالب والشكاية الجماعية <span class="text-red-600">*</span></label>
+                    <textarea id="col-details" rows="5" required placeholder="اذكر تفاصيل الشكاية الجماعية، النقاط المطلبية، والظروف المهنية التي تستدعي تدخل المكتب المحلي..." class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-yellow-500 focus:ring-4 focus:ring-yellow-400/20 outline-none transition bg-slate-50 focus:bg-white"></textarea>
+                </div>
+
+                <!-- منطقة رفع الملفات للشكاية الجماعية -->
+                <div class="bg-yellow-50/70 border-2 border-dashed border-yellow-400 rounded-2xl p-5">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <label class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span>إرفاق لائحة التوقيعات والوثائق المرفقة (PDF, JPG, PNG)</span>
+                        </label>
+                        <span class="text-xs font-bold bg-slate-900 text-yellow-400 px-2.5 py-1 rounded-md">
+                            يفضل إرفاق محضر أو عريضة موقعة
+                        </span>
+                    </div>
+
+                    <div id="col-dropzone" class="bg-white hover:bg-yellow-50/50 border border-yellow-300 rounded-xl p-6 text-center cursor-pointer transition-all">
+                        <input type="file" id="col-file-input" multiple accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" class="hidden">
+                        <div class="w-12 h-12 bg-yellow-400/20 text-amber-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                        </div>
+                        <p class="text-sm font-bold text-slate-800">اسحب عريضة التوقيعات والوثائق هنا، أو <span class="text-amber-600 underline">انقر لاختيار الملفات</span></p>
+                        <p class="text-xs text-slate-500 mt-1">الصيغ المدعومة حصرًا: PDF, JPG, PNG (بحد أقصى 5 ميغابايت للملف)</p>
+                    </div>
+
+                    <!-- قائمة معاينة الملفات المرفقة -->
+                    <div id="col-file-list" class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+                </div>
+
+                <!-- زر الإرسال -->
+                <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200">
+                    <p class="text-xs text-slate-500">
+                        سيتم إدراج الشكاية الجماعية ضمن جدول أعمال المكتب المحلي لفرع مراكش في أقرب اجتماع.
+                    </p>
+                    <button type="submit" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-yellow-400 font-black text-base px-8 py-3.5 rounded-xl shadow-lg hover:shadow-xl transition flex items-center justify-center gap-2 border-2 border-yellow-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                        <span>إيداع الشكاية الجماعية واستخراج الوصل</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- القسم 3: سجل وتتبع الشكايات -->
+        <section id="section-history" class="hidden space-y-6">
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200">
+                    <div>
+                        <h3 class="text-2xl font-black text-slate-900">سجل وتتبع الشكايات المودعة</h3>
+                        <p class="text-sm text-slate-500 mt-1">ابحث برقم وصل الإيداع (مثل CDT-MRK-2026-XXXX) أو تصفح الشكايات والوثائق المرفقة</p>
+                    </div>
+
+                    <!-- أزرار التصفية -->
+                    <div class="flex flex-wrap items-center gap-2 bg-slate-100 p-1.5 rounded-xl">
+                        <button onclick="filterComplaints('all')" id="filter-all" class="filter-btn bg-slate-900 text-yellow-400 font-bold text-xs sm:text-sm px-4 py-2 rounded-lg transition">الكل</button>
+                        <button onclick="filterComplaints('individual')" id="filter-individual" class="filter-btn text-slate-700 hover:bg-white font-bold text-xs sm:text-sm px-4 py-2 rounded-lg transition">شكايات فردية</button>
+                        <button onclick="filterComplaints('collective')" id="filter-collective" class="filter-btn text-slate-700 hover:bg-white font-bold text-xs sm:text-sm px-4 py-2 rounded-lg transition">شكايات جماعية</button>
+                    </div>
+                </div>
+
+                <!-- شريط البحث -->
+                <div class="mt-5 relative">
+                    <input type="text" id="search-input" oninput="renderComplaintsList()" placeholder="ابحث برقم الوصل، الاسم، الوكالة، أو موضوع الشكاية..." class="w-full pl-4 pr-12 py-3.5 rounded-xl border border-slate-300 focus:border-yellow-500 focus:ring-4 focus:ring-yellow-400/20 outline-none bg-slate-50 focus:bg-white transition">
+                    <svg class="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+
+                <!-- قائمة الشكايات -->
+                <div id="complaints-list-container" class="mt-6 space-y-4">
+                    <!-- يتم تعبئتها ديناميكيًا عبر JavaScript -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- نافذة منبثقة (Modal) لعرض وطباعة وصل الإيداع وتفاصيل الشكاية -->
+    <div id="receipt-modal" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border-2 border-yellow-400 overflow-hidden my-8">
+            <!-- شريط علوي للنافذة -->
+            <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between no-print">
+                <span class="font-bold text-yellow-400 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    وصل إيداع شكاية نقابية رسمي
+                </span>
+                <button onclick="closeReceiptModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <!-- محتوى الوصل القابل للطباعة -->
+            <div id="printable-receipt" class="p-6 sm:p-8 space-y-5 text-slate-900">
+                <div class="border-b-2 border-slate-900 pb-4 flex flex-col sm:flex-row justify-between items-center gap-3 text-center sm:text-right">
+                    <div>
+                        <h4 class="font-black text-lg text-slate-950">الكونفدرالية الديمقراطية للشغل (CDT)</h4>
+                        <p class="font-bold text-sm text-amber-700">قطاع الأمانة للتمويل الأصغر - فرع مراكش (المكتب المحلي)</p>
+                    </div>
+                    <div class="bg-yellow-400 text-slate-950 font-black px-4 py-2 rounded-xl border border-slate-900 text-sm">
+                        وصل إيداع إلكتروني
+                    </div>
+                </div>
+
+                <div id="receipt-body" class="space-y-4">
+                    <!-- تفاصيل الشكاية تحقن هنا -->
+                </div>
+
+                <div class="pt-4 border-t border-dashed border-slate-300 flex flex-wrap justify-between items-center text-xs text-slate-500 gap-2">
+                    <span>حرر بمراكش عبر البوابة الرقمية للمكتب المحلي</span>
+                    <span class="font-bold text-slate-800">يرجى الاحتفاظ برقم الوصل لتتبع مآل الشكاية</span>
+                </div>
+            </div>
+
+            <!-- أزرار التحكم بالوصل -->
+            <div class="bg-slate-100 px-6 py-4 flex flex-wrap items-center justify-end gap-3 border-t border-slate-200 no-print">
+                <button onclick="downloadReceiptTxt()" class="bg-white hover:bg-slate-50 text-slate-800 font-bold text-sm px-4 py-2.5 rounded-xl border border-slate-300 flex items-center gap-2 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <span>تحميل الوصل (TXT)</span>
+                </button>
+                <button onclick="window.print()" class="bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black text-sm px-5 py-2.5 rounded-xl border border-slate-900 flex items-center gap-2 shadow transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    <span>طباعة / حفظ كـ PDF</span>
+                </button>
+                <button onclick="closeReceiptModal()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm px-4 py-2.5 rounded-xl transition">
+                    إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- التذييل الرسمي (Footer) -->
+    <footer class="bg-slate-950 text-slate-300 border-t-4 border-yellow-400 mt-12">
+        <div class="max-w-6xl mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+                <div>
+                    <h4 class="text-yellow-400 font-black text-lg">الكونفدرالية الديمقراطية للشغل</h4>
+                    <p class="text-sm font-bold text-white mt-1">قطاع الأمانة للتمويل الأصغر</p>
+                    <p class="text-xs text-slate-400 mt-1">فرع مراكش - المكتب المحلي</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-xs sm:text-sm text-yellow-300/90 font-semibold leading-relaxed">
+                        "نضال مستمر من أجل صون الكرامة، الدفاع عن الحقوق المشروعة، وتحسين الظروف المهنية والاجتماعية لكافة المستخدمين."
+                    </p>
+                </div>
+                <div class="md:text-left text-xs text-slate-400 space-y-1">
+                    <p>الصيغ المدعومة للوثائق: <span class="text-yellow-400 font-bold">PDF, JPG, PNG</span></p>
+                    <p>جميع الحقوق محفوظة &copy; <span id="footer-year">2026</span> المكتب المحلي - مراكش</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- المنطق البرمجي للتطبيق (JavaScript) -->
+    <script>
+        // الثوابت والمتغيرات العامة
+        const STORAGE_KEY = 'cdt_marrakech_complaints_v1';
+        const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
+        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+        let indFiles = []; // مصفوفة الملفات المؤقتة للشكاية الفردية
+        let colFiles = []; // مصفوفة الملفات المؤقتة للشكاية الجماعية
+        let currentFilter = 'all';
+        let activeReceiptData = null;
+
+        // تهيئة التاريخ والبيانات عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('current-date').textContent = now.toLocaleDateString('ar-MA', options);
+            document.getElementById('footer-year').textContent = now.getFullYear();
+
+            // تهيئة مناطق السحب والإفلات
+            setupFileUpload('ind-dropzone', 'ind-file-input', 'individual');
+            setupFileUpload('col-dropzone', 'col-file-input', 'collective');
+
+            // تحديث الإحصائيات والقائمة
+            updateCounters();
+            renderComplaintsList();
+        });
+
+        // نظام التنبيهات الأنيقة (Toast)
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-slate-900 border-yellow-400 text-white' : 'bg-red-900 border-red-400 text-white';
+            const iconColor = type === 'success' ? 'text-yellow-400' : 'text-red-300';
+
+            toast.className = `pointer-events-auto flex items-center gap-3 p-4 rounded-2xl shadow-2xl border-2 ${bgColor} transform transition-all duration-300 translate-y-2 opacity-0`;
+            toast.innerHTML = `
+                <svg class="w-6 h-6 shrink-0 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    ${type === 'success'
+                        ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+                        : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>'}
+                </svg>
+                <p class="text-sm font-bold leading-snug">${message}</p>
+            `;
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // التبديل بين التبويبات الرئيسية
+        function switchMainTab(tabName) {
+            const tabs = ['individual', 'collective', 'history'];
+            tabs.forEach(t => {
+                const section = document.getElementById(`section-${t}`);
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (t === tabName) {
+                    section.classList.remove('hidden');
+                    btn.className = 'tab-btn flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl font-bold text-base transition-all duration-200 bg-yellow-400 text-slate-950 shadow-sm border-2 border-slate-900';
+                } else {
+                    section.classList.add('hidden');
+                    btn.className = 'tab-btn flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl font-bold text-base transition-all duration-200 bg-slate-100 text-slate-700 hover:bg-yellow-100 border-2 border-transparent';
+                }
+            });
+
+            if (tabName === 'history') {
+                renderComplaintsList();
+            }
+        }
+
+        // إعداد السحب والإفلات واختيار الملفات (PDF, JPG, PNG)
+        function setupFileUpload(dropzoneId, inputId, targetType) {
+            const dropzone = document.getElementById(dropzoneId);
+            const fileInput = document.getElementById(inputId);
+
+            dropzone.addEventListener('click', () => fileInput.click());
+
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.classList.add('bg-yellow-100', 'border-amber-600');
+            });
+
+            dropzone.addEventListener('dragleave', () => {
+                dropzone.classList.remove('bg-yellow-100', 'border-amber-600');
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('bg-yellow-100', 'border-amber-600');
+                if (e.dataTransfer.files.length > 0) {
+                    handleFiles(e.dataTransfer.files, targetType);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFiles(e.target.files, targetType);
+                    fileInput.value = ''; // إعادة تعيين للسماح برفع نفس الملف مجددًا إذا حذف
+                }
+            });
+        }
+
+        // معالجة والتحقق من الملفات المرفوعة
+        function handleFiles(fileList, targetType) {
+            const filesArray = Array.from(fileList);
+            const targetList = targetType === 'individual' ? indFiles : colFiles;
+
+            filesArray.forEach(file => {
+                // التحقق من الصيغة
+                if (!ALLOWED_TYPES.includes(file.type)) {
+                    showToast(`الملف "${file.name}" مرفوض. الصيغ المسموحة هي PDF, JPG, PNG فقط.`, 'error');
+                    return;
+                }
+                // التحقق من الحجم
+                if (file.size > MAX_FILE_SIZE) {
+                    showToast(`الملف "${file.name}" يتجاوز الحجم الأقصى المسموح به (5 ميغابايت).`, 'error');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    targetList.push({
+                        id: 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                        name: file.name,
+                        type: file.type,
+                        size: (file.size / 1024).toFixed(1) + ' KB',
+                        dataUrl: e.target.result
+                    });
+                    renderFilePreviews(targetType);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // عرض معاينة الملفات المرفقة
+        function renderFilePreviews(targetType) {
+            const containerId = targetType === 'individual' ? 'ind-file-list' : 'col-file-list';
+            const files = targetType === 'individual' ? indFiles : colFiles;
+            const container = document.getElementById(containerId);
+
+            container.innerHTML = files.map((file, index) => {
+                const isPdf = file.type === 'application/pdf';
+                return `
+                    <div class="flex items-center justify-between bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center gap-2.5 overflow-hidden">
+                            ${isPdf
+                                ? `<div class="w-10 h-10 rounded-lg bg-red-100 text-red-600 flex items-center justify-center font-black text-xs shrink-0">PDF</div>`
+                                : `<img src="${file.dataUrl}" alt="${file.name}" class="w-10 h-10 rounded-lg object-cover border border-slate-200 shrink-0">`
+                            }
+                            <div class="overflow-hidden">
+                                <p class="text-xs font-bold text-slate-800 truncate" title="${file.name}">${file.name}</p>
+                                <p class="text-[11px] text-slate-500">${file.size}</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="removeAttachedFile('${targetType}', ${index})" class="text-slate-400 hover:text-red-600 p-1.5 rounded-lg transition" title="حذف الملف">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // حذف ملف مرفق قبل الإرسال
+        function removeAttachedFile(targetType, index) {
+            if (targetType === 'individual') {
+                indFiles.splice(index, 1);
+            } else {
+                colFiles.splice(index, 1);
+            }
+            renderFilePreviews(targetType);
+        }
+
+        // توليد رقم وصل فريد
+        function generateReceiptNumber() {
+            const year = new Date().getFullYear();
+            const randomNum = Math.floor(1000 + Math.random() * 9000);
+            return `CDT-MRK-${year}-${randomNum}`;
+        }
+
+        // معالجة إرسال الشكاية الفردية
+        document.getElementById('form-individual').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('ind-name').value.trim();
+            const idNum = document.getElementById('ind-id').value.trim();
+            const agency = document.getElementById('ind-agency').value.trim();
+            const phone = document.getElementById('ind-phone').value.trim();
+            const email = document.getElementById('ind-email').value.trim();
+            const urgency = document.getElementById('ind-urgency').value;
+            const subject = document.getElementById('ind-subject').value.trim();
+            const details = document.getElementById('ind-details').value.trim();
+
+            if (!name || !agency || !phone || !subject || !details) {
+                showToast('يرجى تعبئة جميع الحقول الإلزامية المشار إليها بعلامة (*).', 'error');
+                return;
+            }
+
+            const complaintObj = {
+                receiptId: generateReceiptNumber(),
+                category: 'individual',
+                categoryLabel: 'شكاية فردية',
+                name: name,
+                idNumber: idNum || 'غير محدد',
+                agency: agency,
+                phone: phone,
+                email: email || 'غير محدد',
+                urgency: urgency,
+                subject: subject,
+                details: details,
+                files: [...indFiles],
+                status: 'قيد الدراسة من طرف المكتب المحلي',
+                createdAt: new Date().toLocaleString('ar-MA')
+            };
+
+            saveComplaint(complaintObj);
+            this.reset();
+            indFiles = [];
+            renderFilePreviews('individual');
+            showReceiptModal(complaintObj);
+            showToast('تم تسجيل الشكاية الفردية بنجاح واستخراج وصل الإيداع.');
+        });
+
+        // معالجة إرسال الشكاية الجماعية
+        document.getElementById('form-collective').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const group = document.getElementById('col-group').value.trim();
+            const coordinator = document.getElementById('col-coordinator').value.trim();
+            const phone = document.getElementById('col-phone').value.trim();
+            const count = document.getElementById('col-count').value.trim();
+            const subject = document.getElementById('col-subject').value.trim();
+            const details = document.getElementById('col-details').value.trim();
+
+            if (!group || !coordinator || !phone || !count || !subject || !details) {
+                showToast('يرجى تعبئة جميع الحقول الإلزامية للشكاية الجماعية.', 'error');
+                return;
+            }
+
+            const complaintObj = {
+                receiptId: generateReceiptNumber(),
+                category: 'collective',
+                categoryLabel: 'شكاية جماعية',
+                name: coordinator,
+                agency: group,
+                signatoriesCount: count,
+                phone: phone,
+                urgency: 'ملف جماعي',
+                subject: subject,
+                details: details,
+                files: [...colFiles],
+                status: 'قيد الدراسة من طرف المكتب المحلي',
+                createdAt: new Date().toLocaleString('ar-MA')
+            };
+
+            saveComplaint(complaintObj);
+            this.reset();
+            colFiles = [];
+            renderFilePreviews('collective');
+            showReceiptModal(complaintObj);
+            showToast('تم إيداع الشكاية الجماعية بنجاح واستخراج وصل الإيداع.');
+        });
+
+        // حفظ الشكاية في localStorage
+        function saveComplaint(complaint) {
+            let list = getComplaints();
+            list.unshift(complaint);
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+            } catch (err) {
+                // في حال امتلاء سعة التخزين بسبب الصور الكبيرة، نحفظ البيانات الوصفية للملفات
+                complaint.files = complaint.files.map(f => ({ name: f.name, type: f.type, size: f.size, dataUrl: '' }));
+                list[0] = complaint;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+            }
+            updateCounters();
+        }
+
+        function getComplaints() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            } catch {
+                return [];
+            }
+        }
+
+        function updateCounters() {
+            const count = getComplaints().length;
+            document.getElementById('header-total-count').textContent = count;
+            document.getElementById('tab-badge-count').textContent = count;
+        }
+
+        // تصفية السجل
+        function filterComplaints(type) {
+            currentFilter = type;
+            ['all', 'individual', 'collective'].forEach(f => {
+                const btn = document.getElementById(`filter-${f}`);
+                if (f === type) {
+                    btn.className = 'filter-btn bg-slate-900 text-yellow-400 font-bold text-xs sm:text-sm px-4 py-2 rounded-lg transition';
+                } else {
+                    btn.className = 'filter-btn text-slate-700 hover:bg-white font-bold text-xs sm:text-sm px-4 py-2 rounded-lg transition';
+                }
+            });
+            renderComplaintsList();
+        }
+
+        // عرض قائمة الشكايات في السجل
+        function renderComplaintsList() {
+            const container = document.getElementById('complaints-list-container');
+            const query = document.getElementById('search-input').value.trim().toLowerCase();
+            let list = getComplaints();
+
+            if (currentFilter !== 'all') {
+                list = list.filter(item => item.category === currentFilter);
+            }
+
+            if (query) {
+                list = list.filter(item =>
+                    item.receiptId.toLowerCase().includes(query) ||
+                    item.name.toLowerCase().includes(query) ||
+                    item.agency.toLowerCase().includes(query) ||
+                    item.subject.toLowerCase().includes(query)
+                );
+            }
+
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
+                        <div class="w-16 h-16 bg-yellow-400/20 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-lg">لا توجد شكايات مطابقة للبحث حاليًا</h4>
+                        <p class="text-sm text-slate-500 mt-1">يمكنك إيداع شكاية فردية أو جماعية جديدة من خلال التبويبات أعلاه.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = list.map(item => {
+                const isCollective = item.category === 'collective';
+                const badgeClass = isCollective
+                    ? 'bg-slate-900 text-yellow-400 border-slate-900'
+                    : 'bg-yellow-400 text-slate-950 border-yellow-500';
+
+                return `
+                    <div class="bg-slate-50 hover:bg-yellow-50/40 rounded-2xl p-5 border border-slate-200 transition shadow-sm">
+                        <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="font-mono font-black text-sm bg-white px-3 py-1 rounded-lg border border-slate-300 text-slate-900" dir="ltr">${item.receiptId}</span>
+                                <span class="text-xs font-extrabold px-3 py-1 rounded-lg border ${badgeClass}">${item.categoryLabel}</span>
+                                <span class="text-xs font-bold bg-amber-100 text-amber-900 px-2.5 py-1 rounded-lg">${item.status}</span>
+                            </div>
+                            <span class="text-xs text-slate-500 font-medium">${item.createdAt}</span>
+                        </div>
+
+                        <h4 class="text-lg font-extrabold text-slate-900 mb-1">${item.subject}</h4>
+                        <p class="text-sm text-slate-600 line-clamp-2 mb-4">${item.details}</p>
+
+                        <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-200 text-xs">
+                            <div class="flex flex-wrap items-center gap-4 text-slate-700 font-semibold">
+                                <span><strong>${isCollective ? 'المنسق:' : 'المشتكي:'}</strong> ${item.name}</span>
+                                <span><strong>الوكالة/المصلحة:</strong> ${item.agency}</span>
+                                ${isCollective ? `<span><strong>عدد الموقعين:</strong> ${item.signatoriesCount}</span>` : ''}
+                                <span class="text-amber-700"><strong>المرفقات:</strong> ${item.files.length} ملف(ات)</span>
+                            </div>
+
+                            <button onclick='viewComplaintById("${item.receiptId}")' class="bg-slate-900 hover:bg-slate-800 text-yellow-400 font-bold px-4 py-2 rounded-xl transition flex items-center gap-1.5">
+                                <span>عرض التفاصيل والوصل</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function viewComplaintById(receiptId) {
+            const item = getComplaints().find(c => c.receiptId === receiptId);
+            if (item) showReceiptModal(item);
+        }
+
+        // عرض نافذة وصل الإيداع
+        function showReceiptModal(data) {
+            activeReceiptData = data;
+            const isCollective = data.category === 'collective';
+            const filesHtml = data.files.length > 0
+                ? `<div class="mt-2 flex flex-wrap gap-2">${data.files.map(f => `
+                    <span class="inline-flex items-center gap-1.5 bg-slate-100 border border-slate-300 px-2.5 py-1 rounded-lg text-xs font-bold">
+                        ${f.type === 'application/pdf' ? '📄' : '🖼️'} ${f.name}
+                        ${f.dataUrl ? `<a href="${f.dataUrl}" download="${f.name}" class="text-amber-700 underline mr-1 no-print">تحميل</a>` : ''}
+                    </span>`).join('')}</div>`
+                : '<span class="text-slate-500 text-xs">لا توجد وثائق مرفقة</span>';
+
+            document.getElementById('receipt-body').innerHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-yellow-50 p-4 rounded-2xl border border-yellow-300">
+                    <div>
+                        <span class="text-xs text-slate-500 block">رقم وصل الإيداع المرجعي:</span>
+                        <span class="font-mono font-black text-base text-slate-950" dir="ltr">${data.receiptId}</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 block">تاريخ وساعة الإيداع:</span>
+                        <span class="font-bold text-sm text-slate-900">${data.createdAt}</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 block">نوع الشكاية:</span>
+                        <span class="font-extrabold text-sm text-amber-800">${data.categoryLabel}</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 block">حالة الملف:</span>
+                        <span class="font-bold text-sm text-slate-900">${data.status}</span>
+                    </div>
+                </div>
+
+                <div class="space-y-2 text-sm">
+                    <p><strong class="text-slate-700">${isCollective ? 'اسم المنسق/الممثل:' : 'الاسم الكامل:'}</strong> ${data.name}</p>
+                    <p><strong class="text-slate-700">الوكالة / المصلحة:</strong> ${data.agency}</p>
+                    <p><strong class="text-slate-700">رقم الهاتف:</strong> <span dir="ltr">${data.phone}</span></p>
+                    ${isCollective ? `<p><strong class="text-slate-700">عدد الموقعين/المتضررين:</strong> ${data.signatoriesCount}</p>` : ''}
+                    <p><strong class="text-slate-700">موضوع الشكاية:</strong> <span class="font-bold">${data.subject}</span></p>
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 mt-2">
+                        <strong class="text-slate-700 block mb-1">تفاصيل الشكاية:</strong>
+                        <p class="text-slate-800 whitespace-pre-line leading-relaxed">${data.details}</p>
+                    </div>
+                    <div class="pt-2">
+                        <strong class="text-slate-700 block">الوثائق والمرفقات (${data.files.length}):</strong>
+                        ${filesHtml}
+                    </div>
+                </div>
+            `;
+
+            const modal = document.getElementById('receipt-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeReceiptModal() {
+            const modal = document.getElementById('receipt-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // تحميل الوصل كملف نصي
+        function downloadReceiptTxt() {
+            if (!activeReceiptData) return;
+            const d = activeReceiptData;
+            const content = `====================================================
+الكونفدرالية الديمقراطية للشغل (CDT)
+قطاع الأمانة للتمويل الأصغر - فرع مراكش (المكتب المحلي)
+====================================================
+وصل إيداع شكاية نقابية رسمي
+----------------------------------------------------
+رقم الوصل: ${d.receiptId}
+تاريخ الإيداع: ${d.createdAt}
+نوع الشكاية: ${d.categoryLabel}
+الاسم / المنسق: ${d.name}
+الوكالة / المصلحة: ${d.agency}
+الهاتف: ${d.phone}
+الموضوع: ${d.subject}
+----------------------------------------------------
+تفاصيل الشكاية:
+${d.details}
+----------------------------------------------------
+عدد الوثائق المرفقة: ${d.files.length}
+====================================================`;
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${d.receiptId}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
